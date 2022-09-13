@@ -1,65 +1,122 @@
 
-# Welcome to your CDK Python project!
+# Welcome to CDK Python CI Pipeline Project
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`cdk_workshop_stack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This guide demonstrates a CDK app with an instance of a stack (`cdk_workshop_stack`)
+which contains Codepipeline , Codecommit and Codebuild to create your CI/CD Pipeline.
+
+## Prerequisite 
+
+1. To install CDK on your environment:
+
+* First install AWS-Cli in your machine according to the base OS.
+* Configure the AWS by mentioning proper access key and access key id.
+* Next install the Nodejs and NPM packages with the following commands:
+
+```
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+```
+2. Once the NodeSource repository is enabled, install Node.js and npm by typing:
+
+```
+sudo apt install nodejs
+```
+3. Verify that the Node.js and npm were successfully installed by printing their versions:
+
+```
+nodejs --verison
+npm --version
+```
+4. Install NVM (Node Version Manager) script
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+```
+> Note : Output
+=> Close and reopen your terminal to start using nvm or run the following to use it now:
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+5. Once the script is in your PATH, verify that nvm was properly installed by typing:
+
+```
+nvm --version
+```
+6. Now that the nvm is installed you can install the latest available version of Node.js, by typing:
+
+```
+nvm install node 
+```
+7. Last install the aws-cdk package to the latest version.
+
+```
+npm install -g aws-cdk
+```
+
+## Overview
+
+
+Create an empty directory on your system:
+
+```
+mkdir cdk_workshop && cd cdk_workshop
+```
+Use cdk init to create a new project in Python
+
+```
+cdk init sample-app --language python
+```
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
-This project is set up like a standard Python project.  The initialization process also creates
-a virtualenv within this project, stored under the .venv directory.  To create the virtualenv
-it assumes that there is a `python3` executable in your path with access to the `venv` package.
-If for any reason the automatic creation of the virtualenv fails, you can create the virtualenv
-manually once the init process completes.
+## To build your CI Pipeline :
 
-To manually create a virtualenv on MacOS and Linux:
+1. Create a Codepipeline first. 
 
-```
-$ python3 -m venv .venv
-```
+>> *Codepipeline* : CodePipeline automates the build, test, and deploy phases of your release process every time there is a code change, based on the release model you define. This enables you to rapidly and reliably deliver features and updates.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
 
-```
-$ source .venv/bin/activate
-```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+2. You will need to setup your *Codecommit* repository to build your code for CI pipeline. You can use Amazon ECR or your another version control systems such as GitHub and BitBucket.
 
-```
-% .venv\Scripts\activate.bat
-```
+>> *Codecommit* : CodeCommit is a secure, highly scalable, managed source control service that hosts private Git repositories. CodeCommit eliminates the need for you to manage your own source control system or worry about scaling its infrastructure. You can use CodeCommit to store anything from code to binaries.
 
-Once the virtualenv is activated, you can install the required dependencies.
+
+3. In your repository you have to pass the **buildspec.yal** file which is a collection of build commands and related settings, in YAML format, that CodeBuild uses to run a build.
+
+4. In the last stage when the source is created we have to build the pipeline using Codebuild in the refrence of *buildspec.yml* file 
+
+>> *Codebuild* : AWS CodeBuild is a fully managed continuous integration service that compiles source code, runs tests, and produces software packages that are ready to deploy. 
+
+After successfully writing your code you can now synthesize the CloudFormation template by using:
 
 ```
-$ pip install -r requirements.txt
+cdk synth
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+After synthesizing , you need to bootstrap your code
 
 ```
-$ cdk synth
+cdk bootstrap
 ```
 
-You can now begin exploring the source code, contained in the hello directory.
-There is also a very trivial test included that can be run like this:
+Deploy your CDK code with
 
 ```
-$ pytest
+cdk deploy
 ```
 
-To add additional dependencies, for example other CDK libraries, just add to
-your requirements.txt file and rerun the `pip install -r requirements.txt`
-command.
+## Troubleshooting
 
-## Useful commands
+1. While passig the parameters in buildspec.yml file make sure to mention the correct extension to the file as "yml" instead of "yaml".
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+2. User must have required IAM permissions to build the code to create the pipeline. Pass the (AmazonEC2ContainerRegistryFullAccess) permission to your IAM user.
 
-Enjoy!
+
+## Conclusion
+
+1. A pipeline defines your release process workflow, and describes how a new code change progresses through your release process.
+
+2. AWS CodePipeline can pull source code for your pipeline directly from AWS CodeCommit, GitHub, Amazon ECR, or Amazon S3. It can run builds and unit tests in AWS CodeBuild. 
+
+3. AWS CodePipeline uses AWS IAM to manage who can make changes to your release workflow, as well as who can control it. You can grant users access through IAM users, IAM roles, and SAML-integrated directories.
